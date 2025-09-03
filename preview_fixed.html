@@ -28,7 +28,7 @@
                 🏃‍♀️ ウマ娘抽選アプリ 🏃‍♀️
             </h1>
             <p class="text-gray-600">
-                ウマ娘148体（+その他6体）から、指定した人数をランダムに抽選します
+                ウマ娘キャラクターの中から指定した人数をランダムに抽選します
             </p>
         </header>
 
@@ -47,7 +47,7 @@
                         value="1"
                         class="border border-gray-300 rounded-lg px-3 py-2 text-center w-20 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     />
-                    <span class="text-gray-600">体 (最大<span id="max-count">148</span>体)</span>
+                    <span class="text-gray-600">人 (最大<span id="max-count">148</span>人)</span>
                 </div>
 
                 <!-- フィルター設定 -->
@@ -400,7 +400,7 @@
                 resultsGrid.appendChild(div);
             });
             
-            resultsSummary.textContent = `抽選された${currentResults.length}体のキャラクターです！`;
+            resultsSummary.textContent = `抽選された${currentResults.length}人のキャラクターです！`;
         }
     </script>
 </body>
