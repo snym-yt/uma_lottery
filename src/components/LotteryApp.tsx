@@ -41,7 +41,7 @@ export default function LotteryApp() {
             🏃‍♀️ ウマ娘抽選アプリ 🏃‍♀️
           </h1>
           <p className="text-gray-600">
-            ウマ娘{characterCounts.umamusume}体{includeOthers && `（+その他${characterCounts.others}体）`}から、指定した人数をランダムに抽選します
+            ウマ娘{characterCounts.umamusume}人{includeOthers && `（+その他${characterCounts.others}人）`}から、指定した人数をランダムに抽選します
           </p>
         </header>
 
@@ -62,7 +62,7 @@ export default function LotteryApp() {
                 className="border border-gray-300 rounded-lg px-3 py-2 text-center w-20 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 disabled={isDrawing}
               />
-              <span className="text-gray-600">体 (最大{maxCount}体)</span>
+              <span className="text-gray-600">人 (最大{maxCount}人)</span>
             </div>
 
             {/* フィルター設定 */}
@@ -100,7 +100,7 @@ export default function LotteryApp() {
                 {isDrawing ? '抽選中...' : '🎲 抽選開始'}
               </button>
               
-              {results.length > 0 && (
+              {/* {results.length > 0 && (
                 <button
                   onClick={handleReset}
                   disabled={isDrawing}
@@ -108,7 +108,7 @@ export default function LotteryApp() {
                 >
                   🔄 リセット
                 </button>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -135,7 +135,7 @@ export default function LotteryApp() {
               </div>
               <div className="text-center mt-6">
                 <p className="text-gray-600">
-                  抽選された{results.length}体のキャラクターです！
+                  選ばれた{results.length}体のキャラクターです！
                 </p>
               </div>
             </div>
