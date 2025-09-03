@@ -376,22 +376,26 @@
                 div.style.animationDelay = `${index * 100}ms`;
                 
                 const imageUrl = getCharacterImageUrl(character);
-                
+                import Image from "next/image";
                 div.innerHTML = `
                     <div class="mb-3">
-                        <img 
-                            src="${imageUrl}" 
+                        <Image
+                            src="${imageUrl}"
                             alt="${character.name}"
-                            class="w-20 h-24 mx-auto rounded-lg object-cover border-2 ${
+                            width={80} // ← 必須
+                            height={96} // ← 必須
+                            className="w-20 h-24 mx-auto rounded-lg object-cover border-2 ${
                                 character.category === 'umamusume' ? 'border-pink-300' : 'border-blue-300'
                             }"
-                            loading="lazy"
-                            onerror="this.src='https://via.placeholder.com/200x250/FF69B4/FFFFFF?text=${encodeURIComponent(character.name)}'"
+                            onError={(e) => {
+                                e.currentTarget.src = 'https://via.placeholder.com/200x250/FF69B4/FFFFFF?text=${encodeURIComponent(character.name)}';
+                            }}
                         />
                     </div>
                     <h3 class="font-bold text-gray-800 text-sm leading-tight">${character.name}</h3>
                     ${character.category === 'other' ? '<p class="text-xs text-gray-500 mt-1">サポート</p>' : ''}
                 `;
+
                 
                 resultsGrid.appendChild(div);
             });
