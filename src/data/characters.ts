@@ -1,0 +1,196 @@
+// ウマ娘キャラクターデータ（公式サイトから取得）
+export interface UmaMusume {
+  id: string;
+  name: string;
+  category?: 'umamusume' | 'other';
+  imageId?: string; // 画像用ID
+}
+
+export const umaMusumeCharacters: UmaMusume[] = [
+  // ウマ娘（競走馬）
+  { id: "special-week", name: "スペシャルウィーク", category: "umamusume", imageId: "specialweek" },
+  { id: "silence-suzuka", name: "サイレンススズカ", category: "umamusume", imageId: "silencesuzuka" },
+  { id: "tokai-teio", name: "トウカイテイオー", category: "umamusume", imageId: "tokaiteio" },
+  { id: "maruzen-sky", name: "マルゼンスキー", category: "umamusume", imageId: "maruzensky" },
+  { id: "fujikiseki", name: "フジキセキ", category: "umamusume", imageId: "fujikiseki" },
+  { id: "oguri-cap", name: "オグリキャップ", category: "umamusume", imageId: "oguricap" },
+  { id: "gold-ship", name: "ゴールドシップ", category: "umamusume", imageId: "goldship" },
+  { id: "vodka", name: "ウオッカ", category: "umamusume", imageId: "vodka" },
+  { id: "daiwa-scarlet", name: "ダイワスカーレット", category: "umamusume", imageId: "daiwascarlet" },
+  { id: "taiki-shuttle", name: "タイキシャトル", category: "umamusume", imageId: "taikishuttle" },
+  { id: "grass-wonder", name: "グラスワンダー", category: "umamusume", imageId: "grasswonder" },
+  { id: "hishi-amazon", name: "ヒシアマゾン", category: "umamusume", imageId: "hishiamazon" },
+  { id: "mejiro-mcqueen", name: "メジロマックイーン", category: "umamusume", imageId: "mejiromcqueen" },
+  { id: "el-condor-pasa", name: "エルコンドルパサー", category: "umamusume", imageId: "elcondorpasa" },
+  { id: "t-m-opera-o", name: "テイエムオペラオー", category: "umamusume", imageId: "tmoperao" },
+  { id: "narita-brian", name: "ナリタブライアン", category: "umamusume", imageId: "naritabrian" },
+  { id: "symboli-rudolf", name: "シンボリルドルフ", category: "umamusume", imageId: "symbolirudolf" },
+  { id: "air-groove", name: "エアグルーヴ", category: "umamusume", imageId: "airgroove" },
+  { id: "agnes-digital", name: "アグネスデジタル", category: "umamusume", imageId: "agnesdigital" },
+  { id: "seiun-sky", name: "セイウンスカイ", category: "umamusume", imageId: "seiunsky" },
+  { id: "tamamo-cross", name: "タマモクロス", category: "umamusume" },
+  { id: "fine-motion", name: "ファインモーション", category: "umamusume" },
+  { id: "biwa-hayahide", name: "ビワハヤヒデ", category: "umamusume" },
+  { id: "mayano-top-gun", name: "マヤノトップガン", category: "umamusume" },
+  { id: "manhattan-cafe", name: "マンハッタンカフェ", category: "umamusume" },
+  { id: "mihono-bourbon", name: "ミホノブルボン", category: "umamusume" },
+  { id: "mejiro-ryan", name: "メジロライアン", category: "umamusume" },
+  { id: "hishi-akebono", name: "ヒシアケボノ", category: "umamusume" },
+  { id: "yukino-bijin", name: "ユキノビジン", category: "umamusume" },
+  { id: "rice-shower", name: "ライスシャワー", category: "umamusume" },
+  { id: "aines-fujin", name: "アイネスフウジン", category: "umamusume" },
+  { id: "agnes-tachyon", name: "アグネスタキオン", category: "umamusume" },
+  { id: "admire-vega", name: "アドマイヤベガ", category: "umamusume" },
+  { id: "inari-one", name: "イナリワン", category: "umamusume" },
+  { id: "winning-ticket", name: "ウイニングチケット", category: "umamusume" },
+  { id: "air-shakur", name: "エアシャカール", category: "umamusume" },
+  { id: "eishin-flash", name: "エイシンフラッシュ", category: "umamusume" },
+  { id: "curren-chan", name: "カレンチャン", category: "umamusume" },
+  { id: "kawakami-princess", name: "カワカミプリンセス", category: "umamusume" },
+  { id: "gold-city", name: "ゴールドシチー", category: "umamusume" },
+  { id: "sakura-bakushin-o", name: "サクラバクシンオー", category: "umamusume" },
+  { id: "seeking-the-pearl", name: "シーキングザパール", category: "umamusume" },
+  { id: "shinko-windy", name: "シンコウウインディ", category: "umamusume" },
+  { id: "sweep-tosho", name: "スイープトウショウ", category: "umamusume" },
+  { id: "super-creek", name: "スーパークリーク", category: "umamusume" },
+  { id: "smart-falcon", name: "スマートファルコン", category: "umamusume" },
+  { id: "zenno-rob-roy", name: "ゼンノロブロイ", category: "umamusume" },
+  { id: "tosen-jordan", name: "トーセンジョーダン", category: "umamusume" },
+  { id: "nakayama-festa", name: "ナカヤマフェスタ", category: "umamusume" },
+  { id: "narita-taishin", name: "ナリタタイシン", category: "umamusume" },
+  { id: "nishino-flower", name: "ニシノフラワー", category: "umamusume" },
+  { id: "haru-urara", name: "ハルウララ", category: "umamusume" },
+  { id: "bamboo-memory", name: "バンブーメモリー", category: "umamusume" },
+  { id: "biko-pegasus", name: "ビコーペガサス", category: "umamusume" },
+  { id: "marvelous-sunday", name: "マーベラスサンデー", category: "umamusume" },
+  { id: "matikane-fukukitaru", name: "マチカネフクキタル", category: "umamusume" },
+  { id: "mr-cb", name: "ミスターシービー", category: "umamusume" },
+  { id: "meisho-doto", name: "メイショウドトウ", category: "umamusume" },
+  { id: "mejiro-dober", name: "メジロドーベル", category: "umamusume" },
+  { id: "nice-nature", name: "ナイスネイチャ", category: "umamusume" },
+  { id: "king-halo", name: "キングヘイロー", category: "umamusume" },
+  { id: "matikane-tannhauser", name: "マチカネタンホイザ", category: "umamusume" },
+  { id: "ikuno-dictus", name: "イクノディクタス", category: "umamusume" },
+  { id: "mejiro-palmer", name: "メジロパーマー", category: "umamusume" },
+  { id: "daitaku-helios", name: "ダイタクヘリオス", category: "umamusume" },
+  { id: "twin-turbo", name: "ツインターボ", category: "umamusume" },
+  { id: "satono-diamond", name: "サトノダイヤモンド", category: "umamusume" },
+  { id: "kitasan-black", name: "キタサンブラック", category: "umamusume" },
+  { id: "sakura-chiyono-o", name: "サクラチヨノオー", category: "umamusume" },
+  { id: "sirius-symboli", name: "シリウスシンボリ", category: "umamusume" },
+  { id: "mejiro-ardan", name: "メジロアルダン", category: "umamusume" },
+  { id: "yaeno-muteki", name: "ヤエノムテキ", category: "umamusume" },
+  { id: "tsurumaru-tsuyoshi", name: "ツルマルツヨシ", category: "umamusume" },
+  { id: "mejiro-bright", name: "メジロブライト", category: "umamusume" },
+  { id: "daring-tact", name: "デアリングタクト", category: "umamusume" },
+  { id: "sakura-laurel", name: "サクラローレル", category: "umamusume" },
+  { id: "narita-top-road", name: "ナリタトップロード", category: "umamusume" },
+  { id: "yamanin-zephyr", name: "ヤマニンゼファー", category: "umamusume" },
+  { id: "furioso", name: "フリオーソ", category: "umamusume" },
+  { id: "transcend", name: "トランセンド", category: "umamusume" },
+  { id: "espoir-city", name: "エスポワールシチー", category: "umamusume" },
+  { id: "north-flight", name: "ノースフライト", category: "umamusume" },
+  { id: "symboli-kris-s", name: "シンボリクリスエス", category: "umamusume" },
+  { id: "tanino-gimlet", name: "タニノギムレット", category: "umamusume" },
+  { id: "daiichi-ruby", name: "ダイイチルビー", category: "umamusume" },
+  { id: "mejiro-ramonu", name: "メジロラモーヌ", category: "umamusume" },
+  { id: "aston-machan", name: "アストンマーチャン", category: "umamusume" },
+  { id: "satono-crown", name: "サトノクラウン", category: "umamusume" },
+  { id: "cheval-grand", name: "シュヴァルグラン", category: "umamusume" },
+  { id: "verxina", name: "ヴィルシーナ", category: "umamusume" },
+  { id: "vivlos", name: "ヴィブロス", category: "umamusume" },
+  { id: "dantsu-flame", name: "ダンツフレーム", category: "umamusume" },
+  { id: "k-s-miracle", name: "ケイエスミラクル", category: "umamusume" },
+  { id: "jungle-pocket", name: "ジャングルポケット", category: "umamusume" },
+  { id: "believe", name: "ビリーヴ", category: "umamusume" },
+  { id: "no-reason", name: "ノーリーズン", category: "umamusume" },
+  { id: "still-in-love", name: "スティルインラブ", category: "umamusume" },
+  { id: "copano-rickey", name: "コパノリッキー", category: "umamusume" },
+  { id: "hokko-tarumae", name: "ホッコータルマエ", category: "umamusume" },
+  { id: "wonder-acute", name: "ワンダーアキュート", category: "umamusume" },
+  { id: "samson-big", name: "サムソンビッグ", category: "umamusume" },
+  { id: "sounds-of-earth", name: "サウンズオブアース", category: "umamusume" },
+  { id: "royce-and-royce", name: "ロイスアンドロイス", category: "umamusume" },
+  { id: "katsuragi-ace", name: "カツラギエース", category: "umamusume" },
+  { id: "neo-universe", name: "ネオユニヴァース", category: "umamusume" },
+  { id: "hishi-miracle", name: "ヒシミラクル", category: "umamusume" },
+  { id: "tap-dance-city", name: "タップダンスシチー", category: "umamusume" },
+  { id: "duramente", name: "ドゥラメンテ", category: "umamusume" },
+  { id: "rhein-kraft", name: "ラインクラフト", category: "umamusume" },
+  { id: "cesario", name: "シーザリオ", category: "umamusume" },
+  { id: "air-messiah", name: "エアメサイア", category: "umamusume" },
+  { id: "daring-heart", name: "デアリングハート", category: "umamusume" },
+  { id: "fusaichi-pandora", name: "フサイチパンドラ", category: "umamusume" },
+  { id: "buena-vista", name: "ブエナビスタ", category: "umamusume" },
+  { id: "orfevre", name: "オルフェーヴル", category: "umamusume" },
+  { id: "gentildonna", name: "ジェンティルドンナ", category: "umamusume" },
+  { id: "win-variation", name: "ウインバリアシオン", category: "umamusume" },
+  { id: "admire-groove", name: "アドマイヤグルーヴ", category: "umamusume" },
+  { id: "dream-journey", name: "ドリームジャーニー", category: "umamusume" },
+  { id: "calstone-light-o", name: "カルストンライトオ", category: "umamusume" },
+  { id: "durandal", name: "デュランダル", category: "umamusume" },
+  { id: "bubble-gum-fellow", name: "バブルガムフェロー", category: "umamusume" },
+  { id: "sakura-chitose-o", name: "サクラチトセオー", category: "umamusume" },
+  { id: "fenomeno", name: "フェノーメノ", category: "umamusume" },
+  { id: "blast-onepiece", name: "ブラストワンピース", category: "umamusume" },
+  { id: "almond-eye", name: "アーモンドアイ", category: "umamusume" },
+  { id: "lucky-lilac", name: "ラッキーライラック", category: "umamusume" },
+  { id: "gran-alegria", name: "グランアレグリア", category: "umamusume" },
+  { id: "loves-only-you", name: "ラヴズオンリーユー", category: "umamusume" },
+  { id: "chrono-genesis", name: "クロノジェネシス", category: "umamusume" },
+  { id: "curren-bouquet-dor", name: "カレンブーケドール", category: "umamusume" },
+  { id: "stay-gold", name: "ステイゴールド", category: "umamusume" },
+
+  // その他のキャラクター
+  { id: "happy-meek", name: "ハッピーミーク", category: "other" },
+  { id: "bitter-glasse", name: "ビターグラッセ", category: "other" },
+  { id: "little-cocon", name: "リトルココン", category: "other" },
+  { id: "venus-paques", name: "ヴェニュスパーク", category: "other" },
+  { id: "rigantona", name: "リガントーナ", category: "other" },
+  { id: "sonon-elfie", name: "ソノンエルフィー", category: "other" },
+  { id: "hayakawa-tazuna", name: "駿川たづな", category: "other" },
+  { id: "akikawa-yayoi", name: "秋川やよい", category: "other" },
+  { id: "otonashi-etsuko", name: "乙名史悦子", category: "other" },
+  { id: "kiryuin-aoi", name: "桐生院葵", category: "other" },
+  { id: "anshinzawa-sasami", name: "安心沢刺々美", category: "other" },
+  { id: "kashimoto-riko", name: "樫本理子", category: "other" },
+  { id: "light-hello", name: "ライトハロー", category: "other" },
+  { id: "darley-arabian", name: "ダーレーアラビアン", category: "other" },
+  { id: "godolphin-barb", name: "ゴドルフィンバルブ", category: "other" },
+  { id: "byerley-turk", name: "バイアリーターク", category: "other" },
+  { id: "satake-mei", name: "佐岳メイ", category: "other" },
+  { id: "tsurugi-ryoka", name: "都留岐涼花", category: "other" },
+  { id: "sugar-lights", name: "シュガーライツ", category: "other" },
+  { id: "saint-lite", name: "セントライト", category: "other" },
+  { id: "speed-symboli", name: "スピードシンボリ", category: "other" },
+  { id: "haiseiko", name: "ハイセイコー", category: "other" },
+  { id: "tucker-bryne", name: "タッカーブライン", category: "other" },
+  { id: "akasaka-misato", name: "赤坂美聡", category: "other" },
+  { id: "hosoe-junko", name: "細江純子", category: "other" }
+];
+
+// キャラクターをランダムに選択する関数
+export function getRandomCharacters(count: number, includeOthers: boolean = false): UmaMusume[] {
+  const availableCharacters = includeOthers 
+    ? umaMusumeCharacters 
+    : umaMusumeCharacters.filter(char => char.category === 'umamusume');
+    
+  if (count > availableCharacters.length) {
+    throw new Error(`最大${availableCharacters.length}体までしか選択できません`);
+  }
+  
+  const shuffled = [...availableCharacters].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+// カテゴリ別のキャラクター数を取得する関数
+export function getCharacterCounts() {
+  const umamusume = umaMusumeCharacters.filter(char => char.category === 'umamusume');
+  const others = umaMusumeCharacters.filter(char => char.category === 'other');
+  
+  return {
+    umamusume: umamusume.length,
+    others: others.length,
+    total: umaMusumeCharacters.length
+  };
+}

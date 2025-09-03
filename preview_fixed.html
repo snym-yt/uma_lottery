@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ウマ娘抽選アプリ - プレビュー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-100 to-blue-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                🏃‍♀️ ウマ娘抽選アプリ 🏃‍♀️
+            </h1>
+            <p class="text-gray-600">
+                ウマ娘148体（+その他6体）から、指定した人数をランダムに抽選します
+            </p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex flex-col gap-4 mb-6">
+                <!-- 抽選設定 -->
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <label for="count" class="text-lg font-medium text-gray-700">
+                        抽選する人数:
+                    </label>
+                    <input
+                        id="count"
+                        type="number"
+                        min="1"
+                        max="148"
+                        value="1"
+                        class="border border-gray-300 rounded-lg px-3 py-2 text-center w-20 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    />
+                    <span class="text-gray-600">体 (最大<span id="max-count">148</span>体)</span>
+                </div>
+
+                <!-- フィルター設定 -->
+                <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="include-others"
+                            class="w-4 h-4 text-pink-500 border-gray-300 rounded focus:ring-pink-500"
+                        />
+                        <span class="text-gray-700">トレーナーやサポートキャラクターも含める</span>
+                    </label>
+                </div>
+                
+                <!-- 抽選ボタン -->
+                <div class="flex gap-2">
+                    <button
+                        id="draw-btn"
+                        class="px-6 py-2 rounded-lg font-medium transition-all bg-pink-500 hover:bg-pink-600 active:scale-95 text-white"
+                    >
+                        🎲 抽選開始
+                    </button>
+                    
+                    <button
+                        id="reset-btn"
+                        class="px-6 py-2 rounded-lg font-medium bg-gray-500 hover:bg-gray-600 text-white transition-all active:scale-95 hidden"
+                    >
+                        🔄 リセット
+                    </button>
+                </div>
+            </div>
+
+            <!-- 抽選中表示 -->
+            <div id="loading" class="text-center py-8 hidden">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+                <p class="mt-4 text-gray-600">抽選中...</p>
+            </div>
+
+            <!-- 結果表示 -->
+            <div id="results" class="mt-6 hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
+                    🎉 抽選結果 🎉
+                </h2>
+                <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- 結果がここに表示される -->
+                </div>
+                <div class="text-center mt-6">
+                    <p id="results-summary" class="text-gray-600"></p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center text-gray-500 text-sm">
+            <p>※ このアプリはファン作品です。公式とは関係ありません。</p>
+            <p class="mt-1">※ キャラクターデータは公式サイトから取得（2025年9月時点）</p>
+        </footer>
+    </div>
+
+    <script>
+        // ウマ娘キャラクターデータ（最新公式画像URL付き - 2025年9月スクレイピング）
+        const characters = {
+            umamusume: [
+                // 主要ウマ娘キャラクター（公式画像URL付き）
+                { name: "スペシャルウィーク", id: "specialweek", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/2e5d34d593f5460caf8045671798d4e4/specialweek_list.png" },
+                { name: "サイレンススズカ", id: "silencesuzuka", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3192b6b2ec81493ca2cdb901f31fabab/silencesuzuka_list.png" },
+                { name: "トウカイテイオー", id: "tokaiteio", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/cadcd418eba148898a2621f878da87ea/tokaiteio_list.png" },
+                { name: "マルゼンスキー", id: "maruzensky", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/caaeb3fdb43a4056943b2849e43402fb/maruzensky_list.png" },
+                { name: "フジキセキ", id: "fujikiseki", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/ce7748228f1944deab2d263f2f527638/fujikiseki_list.png" },
+                { name: "オグリキャップ", id: "oguricap", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/0095545db55e4030b50f0e58604e0520/oguricap_list.png" },
+                { name: "ゴールドシップ", id: "goldship", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b6b50669a65f4c3ba0434206532c561d/goldship_list.png" },
+                { name: "ウオッカ", id: "vodka", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/8ac7b341d0d94da092a76dbb568581d6/vodka_list.png" },
+                { name: "ダイワスカーレット", id: "daiwascarlet", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/bc82096dd018407690fcbca17a20ae18/daiwascarlet_list.png" },
+                { name: "タイキシャトル", id: "taikishuttle", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/02bf653dc681485c958cff8768ca5fd5/taikishuttle_list.png" },
+                { name: "メジロマックイーン", id: "mejiromcqueen", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b54190968d3644ecb42a708d0f6a084c/mejiromcqueen_list.png" },
+                { name: "グラスワンダー", id: "grasswonder", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/aee4caf3e84244a492c21e6e8fe49b6b/grasswonder_list.png" },
+                { name: "ヒシアマゾン", id: "hishiamazon", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/eb835aeb20374658ab98d6fc2b38f538/hishiamazon_list.png" },
+                { name: "エルコンドルパサー", id: "elcondorpasa", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/d29681f88e0746508ab45ed552f9ae6e/elcondorpasa_list.png" },
+                { name: "テイエムオペラオー", id: "tmoperao", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/64289b3630bf46d3aa4a97039b3923f3/tmoperao_list.png" },
+                { name: "ナリタブライアン", id: "naritabrian", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/cdf5701489cb4d3da86b76de708418db/naritabrian_list.png" },
+                { name: "シンボリルドルフ", id: "symbolirudolf", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/ff6ad42816db4b82bb7393c7b987f817/symbolirudolf_list.png" },
+                { name: "エアグルーヴ", id: "airgroove", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/479656c2d22a4ca18480c52185335b15/airgroove_list.png" },
+                { name: "アグネスデジタル", id: "agnesdigital", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/6b560061c3234a36be1640bc6c67e00d/agnesdigital_list.png" },
+                { name: "セイウンスカイ", id: "seiunsky", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/97e45e2926de43e79c55295a7378c2d4/seiunsky_list.png" },
+                { name: "タマモクロス", id: "tamamocross", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/380fca1269d048abb5a0db0e01cc4ac0/tamamocross_list.png" },
+                { name: "ファインモーション", id: "finemotion", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/6bd53dfa4a6a49dc8478e225943ee0e3/finemotion_list.png" },
+                { name: "ビワハヤヒデ", id: "biwahayahide", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5a779ba26d434e409062c6ac89e7db2d/biwahayahide_list.png" },
+                { name: "マヤノトップガン", id: "mayanotopgun", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/653ba32321a240728d848fe16b8660a9/mayanotopgun_list.png" },
+                { name: "マンハッタンカフェ", id: "manhattancafe", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/ca853da2596e4a339222b293579fa889/manhattancafe_list.png" },
+                { name: "ミホノブルボン", id: "mihonobourbon", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/480c33efca85474aa5818d01a4b1e59c/mihonobourbon_list.png" },
+                { name: "メジロライアン", id: "mejiroryan", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/48ba7bf78f364f819e141d8e54594a8e/mejiroryan_list.png" },
+                { name: "ヒシアケボノ", id: "hishiakebono", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/c6ecf416eb414e24ac53bacd057fd2ad/hishiakebono_list.png" },
+                { name: "ユキノビジン", id: "yukinobijin", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5dcb22f3b1ad45778c9ecb4d44d4213f/yukinobijin_list.png" },
+                { name: "ライスシャワー", id: "riceshower", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/8c203ea11f8a47d0b58296fdcdadd82b/riceshower_01_list.png" },
+                { name: "アイネスフウジン", id: "inesfujin", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/aa6edad3e72244a08b0299e5435f35b8/inesfujin_list.png" },
+                { name: "アグネスタキオン", id: "agnestachyon", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/0b6e09c2dbdb4cacb16c87571f3b257b/agnestachyon_list.png" },
+                { name: "アドマイヤベガ", id: "admirevega", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/925d48819455476abc12ff3577a35ea9/admirevega_list.png" },
+                { name: "イナリワン", id: "inarione", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3f76404022de4285b5af8e9bb1a5648f/inarione_list.png" },
+                { name: "ウイニングチケット", id: "winningticket", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b3fb7ecb2a2d4529b788ce72cd10e4c6/winningticket_list.png" },
+                { name: "エアシャカール", id: "airshakur", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/774a464f460547fe9a153b535d2b1984/airshakur_list.png" },
+                { name: "エイシンフラッシュ", id: "eishinflash", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/2e87602a093f4e6ab13a3d5215f63038/eishinflash_list.png" },
+                { name: "カレンチャン", id: "currenchan", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/bbd93a3db4c54416bb3f7792689d106b/currenchan_list.png" },
+                { name: "カワカミプリンセス", id: "kawakamiprincess", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e4e38a1329b94e4391cb1be2455ad120/kawakamiprincess_list.png" },
+                { name: "ゴールドシチー", id: "goldcity", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/096e7b2787ea40c9882f5a797d545d23/goldcity_list.png" },
+                { name: "サクラバクシンオー", id: "sakurabakushino", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/84bea2aa55464ce1814700575202f21a/sakurabakushino_list.png" },
+                // 全148キャラクター（アルファベット順で残りを追加）
+                { name: "アドマイヤグルーヴ", id: "admiregroove", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/1b6233c9460c45be81a034dd53ffe7b7/admiregroove_list.png" },
+                { name: "アストンマーチャン", id: "astonmachan", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/0ca3971ec9fd4a998cef1328f23ba730/astonmachan_list.png" },
+                { name: "アルモンドアイ", id: "almondeye", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/6009fc8852bf4db3930510850c2bc8e9/almondeye_list.png" },
+                { name: "アンシンザワササミ", id: "anshinzawasasami", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/71783b15668345698f7cc6755b05d0fb/anshinzawasasami_list.png" },
+                { name: "エアメサイア", id: "airmessiah", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/9b3c204c205f4e76ae1c31f3db2e9646/airmessiah_list.png" },
+                { name: "エスポワールシチー", id: "espoircity", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/6c6e4c6387bc40fd9a3f63e2b414f62a/espoircity_list.png" },
+                { name: "キタサンブラック", id: "kitasanblack", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/94e780747b6c447fa48c99052cd7e2de/kitasanblack_list.png" },
+                { name: "サトノダイヤモンド", id: "satonodiamond", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/75073e52e88c432f80a4e60333884f77/satonodiamond_list.png" },
+                { name: "サトノクラウン", id: "satonocrown", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/749b7b5716904f79bb16749de4bdaff6/satonocrown_list.png" },
+                { name: "シンコウウインディ", id: "shinkowindy", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5ebd10d2a828409093747427da23ee19/shinkowindy_list.png" },
+                { name: "ジェンティルドンナ", id: "gentildonna", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/c3c0c457704a447c9061d1631588f2c8/gentildonna_list.png" },
+                { name: "ステイゴールド", id: "staygold", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/1ae64df3a200487b88facc86e7ffd103/staygold_list.png" },
+                { name: "スマートファルコン", id: "smartfalcon", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/7ceffc005e594501822ac3d58db4e1e1/smartfalcon_list.png" },
+                { name: "スーパークリーク", id: "supercreek", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3316aa27ddf54fa0bb4af195af3e67de/supercreek_list.png" },
+                { name: "ツインターボ", id: "twinturbo", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/36e7e622a69b45f6b3d00bc0c9b48ab7/twinturbo_list.png" },
+                { name: "ハルウララ", id: "haruurara", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/ab34862a2ae0421ca01b42c161761f21/haruurara_list.png" },
+                { name: "ハッピーミークE", id: "happymik", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/2a04bc169cf4436a93ab79f19c19b966/happymik_list.png" },
+                { name: "バンブーメモリー", id: "bamboomemory", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/6f5207cad44044c5a5b7ebffda2d80e7/bamboomemory_list.png" },
+                { name: "ビコーペガサス", id: "bikopegasus", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/778cde50d585476dbb7aa01d9e2ba248/bikopegasus_list.png" },
+                { name: "メジロドーベル", id: "mejirodober", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/35293ceb39e54f9c8ebfb4407dc4eb48/mejirodober_list.png" },
+                { name: "ライトハロー", id: "lighthello", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5fb25172f3c8483883662c1009695306/lighthello_list.png" },
+                { name: "ワンダーアキュート", id: "wonderacute", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/0035d494d1d447a5b09f103ae0983b80/wonderacute_list.png" },
+                { name: "カシモトリコ", id: "kashimotoriko", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/a7eb3c955f444b25ab17259f9de1a58a/kashimotoriko_list.png" },
+                { name: "コパノリッキー", id: "copanorickey", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/2072a3ff37c343e9a0669eee3894b6fa/copanorickey_list.png" },
+                { name: "ナカヤマフェスタ", id: "nakayamafesta", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5720bd42899f47499c079d5cc2458e50/nakayamafesta_list.png" },
+                { name: "ナリタタイシン", id: "naritataishin", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/4371cd67a6e04442b7d9e03626aa39da/naritataishin_list.png" },
+                { name: "ナリタトップロード", id: "naritatoproad", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3f60d51fd01149148b6f7b59997632b2/naritatoproad_list.png" },
+                { name: "ニシノフラワー", id: "nishinoflower", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/acff3a5cc385458383764856832a82c5/nishinoflower_list.png" },
+                { name: "ハイセイコー", id: "haiseiko", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/9649d25c93c2409a85cd9af0444fa051/haiseiko_list.png" },
+                { name: "ヒシミラクル", id: "hishimiracle", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/13f8dd98962c42d6b33644fe5f59595d/hishimiracle_list.png" },
+                { name: "マチカネフクキタル", id: "matikanefukukitaru", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/77837c8a379c452aa44e55a3b36a07c9/matikanefukukitaru_list.png" },
+                { name: "マーベラスサンデー", id: "marveloussunday", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b3af712d8ccf4c4094de92e2aaffc3c4/marveloussunday_list.png" },
+                { name: "メジロアルダン", id: "mejiroardan", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5882fc435fab47278954eb9cd756f7a2/mejiroardan_list.png" },
+                { name: "メジロブライト", id: "mejirobright", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e97d5a3de746495593b33c225e2902e5/mejirobright_list.png" },
+                { name: "メジロパーマー", id: "mejiropalmer", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/54e5614a3eac44e6a0e8b4f4a2e3ed4d/mejiropalmer_list.png" },
+                { name: "メジロラモーヌ", id: "mejiroramonu", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5d6e67035f7f4fcca64d9ed93b0ee241/mejiroramonu_list.png" },
+                { name: "ラッキーライラック", id: "luckylilac", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/781af99cf1d84e63bc2026538f0a55a5/luckylilac_list.png" },
+                { name: "シリウスシンボリ", id: "siriussymboli", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b5f37d052b064e868b9695b06bc67f41/siriussymboli_list.png" },
+                { name: "スイープトウショウ", id: "sweeptosho", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5d243633c0ef415bb48702d0c8531308/sweeptosho_list.png" },
+                // 追加キャラクター（公式URLスクレイピングより）
+                { name: "ビリーヴ", id: "believe", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/142f6ac947e7444bb5235b1e17c8c5b7/believe_list.png" },
+                { name: "ビターグラッセ", id: "bitterglasse", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/0f00e4c009f44283a6bbef7680c35082/bitterglasse_list.png" },
+                { name: "ブラストワンピース", id: "blastonepiece", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/15d555352d574b44b0106fc70fb0892f/blastonepiece_list.png" },
+                { name: "バブルガムフェロー", id: "bubblegumfellow", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/eb96eb8435944a0abb98c3893afa588a/bubblegumfellow_list.png" },
+                { name: "ブエナビスタ", id: "buenavista", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/7f12ea9d50b44a4a9e0b8956eb1fd223/buenavista_list.png" },
+                { name: "バイアリーターク", id: "byerleyturk", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/a49c57bbd91c466c8335e3d879a1ea7c/byerleyturk_list.png" },
+                { name: "カルストンライトオ", id: "calstonelighto", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/f1702e191d4045e3854dca9f074228fe/calstonelighto_list.png" },
+                { name: "セサリオ", id: "cesario", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/93c31193c3314ba9b7bb92598bcba30b/cesario_list.png" },
+                { name: "シェヴァルグラン", id: "chevalgrand", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5cf740ed13c64829a4f7b73487d180ff/chevalgrand_list.png" },
+                { name: "クロノジェネシス", id: "chronogenesis", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e515893fdf2249a8abe6602ee5ebc95e/chronogenesis_list.png" },
+                { name: "カレンブーケドール", id: "currenbouquetdor", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/65ff1570a4ef40af9d00918eb94a9e6f/currenbouquetdor_list.png" },
+                { name: "ダイイチルビー", id: "daiichiruby", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/4899801222cd459488b99fb94f716e65/daiichiruby_list.png" },
+                { name: "ダイタクヘリオス", id: "daitakuhelios", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/decc332003964b6db79967dda717fee6/daitakuhelios_list.png" },
+                { name: "ダンツフレーム", id: "dantsuflame", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/9367bd41586947ecb0d7d83e9a16e431/dantsuflame_list.png" },
+                { name: "デアリングハート", id: "daringheart", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/837386c50db047d9b723a27440b35e58/daringheart_list.png" },
+                { name: "ダーリーアラビアン", id: "darleyarabian", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3554c8e804a342c0840890b055643d60/darleyarabian_list.png" },
+                { name: "ドリームジャーニー", id: "dreamjourney", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/7ec1f7674eb34eafb8bc4cec6e8ab343/dreamjourney_list.png" },
+                { name: "ドゥラメンテ", id: "duramente", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/5ba2e3004acd4cdc8d9b0e7f0bf7cbe0/duramente_list.png" },
+                { name: "デュランダル", id: "durandal", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/54adb7d4190642e4a9d29b6e8da8ddf8/durandal_list.png" },
+                { name: "フェノーメノ", id: "fenomeno", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/d2d0f8f360cb46109a7acae5ce630be9/fenomeno_list.png" },
+                { name: "フリオーソ", id: "furioso", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3de9f0dba51749d1828aee4adaf39549/furioso_list.png" },
+                { name: "フサイチパンドラ", id: "fusaichipandora", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/be5f9ba589d34592bc05a22e347c7a77/fusaichipandora_list.png" },
+                { name: "ゴドルフィンバルブ", id: "godolphinbarb", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/a5ef307acc8f4ee3b88e7d7cffefe9d4/godolphinbarb_list.png" },
+                { name: "グラナアレグリア", id: "granalegria", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/186354558c8c4dec98c37d6e67cc2464/granalegria_list.png" },
+                { name: "ホッコータルマエ", id: "hokkotarumae", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/f53900276c384a5884e81476465bcbe0/hokkotarumae_list.png" },
+                { name: "イクノディクタス", id: "ikunodictus", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/fc93e52618534b6c88eddf78570851aa/ikunodictus_list.png" },
+                { name: "ジャングルポケット", id: "junglepocket", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e3f353e616aa490d988b909e8acb237b/junglepocket_list.png" },
+                { name: "カツラギエース", id: "katsuragiace", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/28479a70523e471cb84ac10b4b1ff114/katsuragiace_list.png" },
+                { name: "キングヘイロー", id: "kinghalo", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/eb01acda524d4f28b38d4d699fbaa47e/kinghalo_list.png" },
+                { name: "ケイエスミラクル", id: "k-s-miracle", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/2b2b6f02405e43f1a65592a370401109/k-s-miracle_list.png" },
+                { name: "リトルココン", id: "littlecocon", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/55922c4a12ed4fc2a7cb84b158c7ce1d/littlecocon_list.png" },
+                { name: "ラブズオンリーユー", id: "lovesonlyyou", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/abbfc5bb547f4d03a886e10f1072d603/lovesonlyyou_list.png" },
+                { name: "マチカネタンホイザ", id: "matikanetannhauser", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400dp8729642ddff5938/e7c65191769c49acab4fbbbf43887de1/matikanetannhauser_list.png" },
+                { name: "マーベラスサンデー", id: "marveloussunday", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b3af712d8ccf4c4094de92e2aaffc3c4/marveloussunday_list.png" },
+                { name: "メイショウドトウ", id: "meishodoto", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/c45afaaf78dd481c9e918e50e6181134/meishodoto_list.png" },
+                { name: "ミスターシービー", id: "mrcb", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3488578cbbb04e63988ad45d74795cde/mrcb_list.png" },
+                { name: "ネオユニヴァース", id: "neouniverse", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/10f27dc4dfd0425d9dab1b46d6d50690/neouniverse_list.png" },
+                { name: "ナイスネイチャ", id: "nicenature", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/edb0ea3aa20248799927528bc8726e08/nicenature_list.png" },
+                { name: "ノーリーズン", id: "noreason", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/4d848a9d09eb4d4996321debd8c22c8c/noreason_list.png" },
+                { name: "ノースフライト", id: "northflight", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/950f5f8d81df4d9b97a9cc2361b632be/northflight_list.png" },
+                { name: "オルフェーヴル", id: "orfevre", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/1a5c8514113b4c1dba972e9508e0ed78/orfevre_list.png" },
+                { name: "ライカフト", id: "rheinkraft", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/cfd166d87db64907b4ffd176f50af1cd/rheinkraft_list.png" },
+                { name: "リガルトナ", id: "rigantona", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/829453808b664a469beec3d0def366c9/rigantona_list.png" },
+                { name: "ロイスアンドロイス", id: "royceandroyce", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/81d3c0e88c144e8f9fa328f581ade44f/royceandroyce_list.png" },
+                { name: "セイントライト", id: "saintlite", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/6fe1f0532dcb4d7b9afb1f25c21744ee/saintlite_list.png" },
+                { name: "サクラチトセオー", id: "sakurachitoseo", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/3aa6c2887e5c48348a9ecf646d123dc1/sakurachitoseo_list.png" },
+                { name: "サクラチヨノオー", id: "sakurachiyonoo", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/07f4b9a6a6984b74b0e9f4c06cff07f0/sakurachiyonoo_list.png" },
+                { name: "サクラローレル", id: "sakuralaurel", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/37b9b1f564234e3ea98bfeddbe452848/sakuralaurel_list.png" },
+                { name: "サムソンビッグ", id: "samsonbig", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/37677b8ce6fd4196b32cea1f7efcd254/samsonbig_list.png" },
+                { name: "サタケメイ", id: "satakemei", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/55547e52d732465d8ee85d0f5f4b53be/satakemei_list.png" },
+                { name: "シーキングザパール", id: "seekingthepearl", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/7ae751ce6dfd4cf08b6dc81b6e0526ab/seekingthepearl_list.png" },
+                { name: "ソノエルフィー", id: "sononelfie", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/f68afd4bf36643139bb7942c80b5be7f/sononelfie_list.png" },
+                { name: "サウンズオブアース", id: "soundsofearth", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b17330e872874656976f15d93b424a76/soundsofearth_list.png" },
+                { name: "スピードシンボリ", id: "speedsymboli", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/d64cf4d8702648c1bc2aa5c5a6d7afbd/speedsymboli_list.png" },
+                { name: "スティルインラブ", id: "stillinlove", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/ce53c7d0280049c3b9f474955ef9e51b/stillinlove_list.png" },
+                { name: "シュガーライツ", id: "sugarlights", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e1631cf19fec4940ace4e4adb7fbad07/sugarlights_list.png" },
+                { name: "シンボリクリスエス", id: "symbolikriss", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/cf2cb0069c144ff4ace3ba7f0c04b120/symbolikriss_list.png" },
+                { name: "タニノギムレット", id: "taninogimlet", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/38ba273b41354eb2871ca785740107e5/taninogimlet_list.png" },
+                { name: "タップダンスシチー", id: "tapdancecity", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/15937c6439c2407c845b8fe8bc9e1819/tapdancecity_list.png" },
+                { name: "トーセンジョーダン", id: "tosenjordan", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/a4ed11cb612f4cc1ad6ea3c167c9ac85/tosenjordan_list.png" },
+                { name: "トランセンド", id: "transcend", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/a3bed0aee9c04959a8086d09c8409b66/transcend_list.png" },
+                { name: "ツルギリョウカ", id: "tsurugiryoka", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/2f76d29b4f0a4ae5b047f3ed9f1016cf/tsurugiryoka_list.png" },
+                { name: "ツルマルツヨシ", id: "tsurumarutsuyoshi", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/549338befba74a278b03f1fb9e2d1e50/tsurumarutsuyoshi_list.png" },
+                { name: "タッカーブライン", id: "tuckerbryne", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/08cdb7dce3a2419e876a1405306d4a0a/tuckerbryne_list.png" },
+                { name: "ヴィナスパーク", id: "venuspark", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/b2cd6bcb61014b5e9f51c1d9c07ffb09/venuspark_list.png" },
+                { name: "ベルクシナ", id: "verxina", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/427bf6bd17d844b383e332e2db60e782/verxina_list.png" },
+                { name: "ヴィブロス", id: "vivlos", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/88bb264a970c4551b5fae492cd0518a1/vivlos_list.png" },
+                { name: "ウィンバリアシオン", id: "winvariation", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/c15373cabd854df7ae8c16be37c28db8/winvariation_list.png" },
+                { name: "ヤエノムテキ", id: "yaenomuteki", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/caa3ad8e1507499ab727e27bd353f59c/yaenomuteki_list.png" },
+                { name: "ヤマニンゼファー", id: "yamaninzephyr", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e62bd533503649a785c537401292f159/yamaninzephyr_list.png" },
+                { name: "ゼンノロブロイ", id: "zennorobroy", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/61ce5a3a4d6b46018c8f68e3f503d9c6/zennorobroy_list.png" }
+            ],
+            others: [
+                { name: "駿川たづな", id: "hayakawatazuna", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/10329e7971be44b99741c89492ef9d06/hayakawatazuna_list.png" },
+                { name: "秋川やよい", id: "akikawayayoi", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/a3d9111af2c04af1881413f252d0a25d/akikawayayoi_list.png" },
+                { name: "乙名史悦子", id: "otonashietsuko", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/4e17a943ad134d08ae12a4d67ee85114/otonashietsuko_list.png" },
+                { name: "桐生院葵", id: "kiryuinaoi", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/e23de710d8e14542be1e9b9a1428c8c4/kiryuinaoi_list.png" },
+                { name: "細江純子", id: "hosoejunko", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/9a5022f5c7484b20a86870eccce61c45/hosoejunko_list.png" },
+                { name: "赤坂美里", id: "akasakamisato", imageUrl: "https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/69658f1d37444b62a8e451e9b8039fdc/akasakamisato_list.png" }
+            ],
+            others: [
+                { name: "駿川たづな", id: "hayakawatazuna" },
+                { name: "秋川やよい", id: "akikawayayoi" },
+                { name: "乙名史悦子", id: "otonashietsuko" },
+                { name: "桐生院葵", id: "kiryuinaoi" }
+            ]
+        };
+
+        // 画像URL生成関数
+        function getCharacterImageUrl(character) {
+            // 公式画像がある場合はそれを使用
+            if (character.imageUrl) {
+                return character.imageUrl;
+            }
+            
+            // _list.png形式（リスト用画像）で統一
+            const listImageUrl = `https://images.microcms-assets.io/assets/973fc097984b400db8729642ddff5938/${character.id}/${character.id}_list.png`;
+            
+            return listImageUrl;
+        }
+
+        let currentResults = [];
+
+        // DOM要素の取得
+        const countInput = document.getElementById('count');
+        const includeOthersCheckbox = document.getElementById('include-others');
+        const maxCountSpan = document.getElementById('max-count');
+        const drawBtn = document.getElementById('draw-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const resultsGrid = document.getElementById('results-grid');
+        const resultsSummary = document.getElementById('results-summary');
+
+        // イベントリスナーの設定
+        includeOthersCheckbox.addEventListener('change', function() {
+            const maxCount = this.checked ? 
+                characters.umamusume.length + characters.others.length : 
+                characters.umamusume.length;
+            maxCountSpan.textContent = maxCount;
+            countInput.max = maxCount;
+            
+            if (parseInt(countInput.value) > maxCount) {
+                countInput.value = maxCount;
+            }
+        });
+
+        drawBtn.addEventListener('click', function() {
+            const count = parseInt(countInput.value);
+            const includeOthers = includeOthersCheckbox.checked;
+            
+            // ボタン無効化
+            drawBtn.disabled = true;
+            drawBtn.className = 'px-6 py-2 rounded-lg font-medium transition-all bg-gray-400 cursor-not-allowed text-white';
+            
+            // ローディング表示
+            results.classList.add('hidden');
+            loading.classList.remove('hidden');
+            
+            setTimeout(() => {
+                // 抽選実行
+                const availableChars = includeOthers ? 
+                    [...characters.umamusume, ...characters.others] : 
+                    [...characters.umamusume];
+                    
+                const shuffled = availableChars.sort(() => Math.random() - 0.5);
+                currentResults = shuffled.slice(0, count).map(char => ({
+                    ...char,
+                    category: characters.umamusume.includes(char) ? 'umamusume' : 'other'
+                }));
+                
+                displayResults();
+                
+                // ボタン復活
+                drawBtn.disabled = false;
+                drawBtn.className = 'px-6 py-2 rounded-lg font-medium transition-all bg-pink-500 hover:bg-pink-600 active:scale-95 text-white';
+                
+                // ローディング非表示、結果表示
+                loading.classList.add('hidden');
+                results.classList.remove('hidden');
+                resetBtn.classList.remove('hidden');
+            }, 1000);
+        });
+
+        resetBtn.addEventListener('click', function() {
+            currentResults = [];
+            results.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+        });
+
+        function displayResults() {
+            resultsGrid.innerHTML = '';
+            
+            currentResults.forEach((character, index) => {
+                const div = document.createElement('div');
+                div.className = `border-2 rounded-lg p-4 text-center transform hover:scale-105 transition-all animate-fade-in ${
+                    character.category === 'umamusume' ? 
+                        'bg-gradient-to-br from-pink-50 to-purple-50 border-pink-200' : 
+                        'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200'
+                }`;
+                div.style.animationDelay = `${index * 100}ms`;
+                
+                const imageUrl = getCharacterImageUrl(character);
+                
+                div.innerHTML = `
+                    <div class="mb-3">
+                        <img 
+                            src="${imageUrl}" 
+                            alt="${character.name}"
+                            class="w-20 h-24 mx-auto rounded-lg object-cover border-2 ${
+                                character.category === 'umamusume' ? 'border-pink-300' : 'border-blue-300'
+                            }"
+                            loading="lazy"
+                            onerror="this.src='https://via.placeholder.com/200x250/FF69B4/FFFFFF?text=${encodeURIComponent(character.name)}'"
+                        />
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-sm leading-tight">${character.name}</h3>
+                    ${character.category === 'other' ? '<p class="text-xs text-gray-500 mt-1">サポート</p>' : ''}
+                `;
+                
+                resultsGrid.appendChild(div);
+            });
+            
+            resultsSummary.textContent = `抽選された${currentResults.length}体のキャラクターです！`;
+        }
+    </script>
+</body>
+</html>
