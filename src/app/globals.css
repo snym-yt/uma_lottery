@@ -3,41 +3,128 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+ --background: #ffffff;
+ --foreground: #171717;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+ color: var(--foreground);
+ background: var(--background);
+ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+ margin: 0;
+ padding: 0;
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+ .text-balance {
+   text-wrap: balance;
+ }
 }
 
-/* カスタムアニメーション */
+/* スムーズなトランジション */
+* {
+ transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease,
+             text-decoration-color 0.15s ease, fill 0.15s ease, stroke 0.15s ease,
+             opacity 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+}
+
+/* カスタムスクロールバー */
+::-webkit-scrollbar {
+ width: 8px;
+}
+
+::-webkit-scrollbar-track {
+ background: #f1f1f1;
+ border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+ background: #c1c1c1;
+ border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+ background: #a8a8a8;
+}
+
+/* アニメーション */
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+ from {
+   opacity: 0;
+   transform: translateY(10px);
+ }
+ to {
+   opacity: 1;
+   transform: translateY(0);
+ }
+}
+
+@keyframes slide-up {
+ from {
+   opacity: 0;
+   transform: translateY(20px);
+ }
+ to {
+   opacity: 1;
+   transform: translateY(0);
+ }
+}
+
+@keyframes bounce-in {
+ 0% {
+   opacity: 0;
+   transform: scale(0.3);
+ }
+ 50% {
+   opacity: 1;
+   transform: scale(1.05);
+ }
+ 70% {
+   transform: scale(0.9);
+ }
+ 100% {
+   opacity: 1;
+   transform: scale(1);
+ }
+}
+
+.fade-in {
+ animation: fade-in 0.5s ease-out;
+}
+
+.slide-up {
+ animation: slide-up 0.3s ease-out;
+}
+
+.bounce-in {
+ animation: bounce-in 0.6s ease-out;
+}
+
+/* モバイル最適化 */
+@media (max-width: 640px) {
+ body {
+   font-size: 14px;
+ }
+}
+
+/* フォーカススタイル */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+ outline: 2px solid #3b82f6;
+ outline-offset: 2px;
+}
+ from {
+   opacity: 0;
+   transform: translateY(20px);
+ }
+ to {
+   opacity: 1;
+   transform: translateY(0);
+ }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.5s ease-out forwards;
+ animation: fade-in 0.5s ease-out forwards;
 }
