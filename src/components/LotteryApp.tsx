@@ -170,14 +170,14 @@ export default function LotteryApp() {
                onClick={() => setShowHistory(true)}
                className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
                title="履歴を見る"
-
+            >
                📊
              </button>
              <button
                onClick={() => setShowSettings(true)}
                className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
                title="設定"
-
+            >
                ⚙️
              </button>
            </div>
@@ -213,7 +213,7 @@ export default function LotteryApp() {
              onClick={performLottery}
              disabled={isLotteryRunning || selectedCharacters.length === 0}
              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
-
+          >
              {isLotteryRunning ? (
                <>
                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -244,7 +244,7 @@ export default function LotteryApp() {
                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
              }`}
-
+          >
              <span>{tab.icon}</span>
              <span>{tab.label}</span>
              <span className="bg-white rounded-full px-2 py-1 text-xs">
@@ -259,7 +259,7 @@ export default function LotteryApp() {
          <button
            onClick={toggleAllSelection}
            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
-
+        >
            <span>
              {filteredCharacters.every(c => c.selected) ? '☑️' : '⬜'}
            </span>
@@ -284,7 +284,7 @@ export default function LotteryApp() {
                  : 'ring-1 ring-gray-200 hover:ring-gray-300 hover:shadow-md'
              }`}
              onClick={() => toggleCharacterSelection(character.id)}
-
+          >
              {/* キャラクター画像 */}
              <div className="aspect-square relative">
                <Image
@@ -332,7 +332,7 @@ export default function LotteryApp() {
                      }}
                      className="text-white hover:text-orange-300 transition-colors"
                      disabled={character.weight <= 1}
-
+                  >
                      <span className="text-lg">➖</span>
                    </button>
                    <span className="text-white text-sm font-bold mx-2">
@@ -345,7 +345,7 @@ export default function LotteryApp() {
                      }}
                      className="text-white hover:text-orange-300 transition-colors"
                      disabled={character.weight >= 10}
-
+                    >
                      <span className="text-lg">➕</span>
                    </button>
                  </div>
@@ -366,7 +366,7 @@ export default function LotteryApp() {
                <button
                  onClick={() => setShowResults(false)}
                  className="text-gray-500 hover:text-gray-700 transition-colors"
-
+              >
                  ❌
                </button>
              </div>
@@ -413,13 +413,13 @@ export default function LotteryApp() {
                      }
                    }}
                    className="text-red-600 hover:text-red-700 transition-colors text-sm"
-
+                  >
                    履歴削除
                  </button>
                  <button
                    onClick={() => setShowHistory(false)}
                    className="text-gray-500 hover:text-gray-700 transition-colors"
-
+                   >
                    ❌
                  </button>
                </div>
@@ -507,7 +507,7 @@ export default function LotteryApp() {
                <button
                  onClick={() => setShowSettings(false)}
                  className="text-gray-500 hover:text-gray-700 transition-colors"
-
+                >
                  ❌
                </button>
              </div>
@@ -523,7 +523,7 @@ export default function LotteryApp() {
                  }
                }}
                className="w-full bg-red-100 text-red-700 py-3 rounded-lg hover:bg-red-200 transition-colors"
-
+               >
                設定をリセット
              </button>
 
@@ -538,7 +538,7 @@ export default function LotteryApp() {
                  }
                }}
                className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors"
-
+               >
                全データ削除
              </button>
            </div>
