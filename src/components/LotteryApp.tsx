@@ -323,19 +323,19 @@ export default function LotteryApp() {
 
              {/* 重み調整ボタン */}
              {character.selected && (
-               <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity">
-                 <div className="flex items-center justify-center space-x-1 p-2">
+               <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-90 opacity-0 group-hover:opacity-100 transition-opacity">
+                 <div className="flex items-center justify-center space-x-2 p-2">
                    <button
                      onClick={(e) => {
                        e.stopPropagation();
                        updateCharacterWeight(character.id, character.weight - 1);
                      }}
-                     className="text-white hover:text-orange-300 transition-colors"
+                     className="bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                      disabled={character.weight <= 1}
-                  >
-                     <span className="text-lg">➖</span>
+                     >
+                     <span>−</span>
                    </button>
-                   <span className="text-white text-sm font-bold mx-2">
+                   <span className="text-white text-sm font-bold mx-1 min-w-[20px] text-center">
                      {character.weight}
                    </span>
                    <button
@@ -343,10 +343,10 @@ export default function LotteryApp() {
                        e.stopPropagation();
                        updateCharacterWeight(character.id, character.weight + 1);
                      }}
-                     className="text-white hover:text-orange-300 transition-colors"
+                     className="bg-green-500 hover:bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                      disabled={character.weight >= 10}
-                    >
-                     <span className="text-lg">➕</span>
+                     >
+                     <span>+</span>
                    </button>
                  </div>
                </div>
